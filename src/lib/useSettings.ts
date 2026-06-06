@@ -8,6 +8,7 @@ type Settings = {
   theme: string;
   size: ButtonSize;
   adminUnlocked: boolean;
+  tripleTUnlocked: boolean;
   corners: Corners;
   pattern: Pattern;
   reduceMotion: boolean;
@@ -17,7 +18,7 @@ type Settings = {
 function readSettings(): Settings {
   if (typeof window === "undefined") {
     return {
-      theme: DEFAULT_THEME, size: DEFAULT_SIZE, adminUnlocked: false,
+      theme: DEFAULT_THEME, size: DEFAULT_SIZE, adminUnlocked: false, tripleTUnlocked: false,
       corners: "rounded", pattern: "solid", reduceMotion: false, showMascot: true,
     };
   }
@@ -25,6 +26,7 @@ function readSettings(): Settings {
     theme: localStorage.getItem("siteTheme") || DEFAULT_THEME,
     size: (localStorage.getItem("buttonSize") as ButtonSize) || DEFAULT_SIZE,
     adminUnlocked: localStorage.getItem("adminUnlocked") === "true",
+    tripleTUnlocked: localStorage.getItem("tripleTUnlocked") === "true",
     corners: (localStorage.getItem("tileCorners") as Corners) || "rounded",
     pattern: (localStorage.getItem("bgPattern") as Pattern) || "solid",
     reduceMotion: localStorage.getItem("reduceMotion") === "true",
@@ -68,6 +70,12 @@ export function useSettings() {
     bump();
   }, []);
 
+  const setTripleTUnlocked = useCallback((value: boolean) => {
+    if (value) localStorage.setItem("tripleTUnlocked", "true");
+    else localStorage.removeItem("tripleTUnlocked");
+    bump();
+  }, []);
+
   const setCorners = useCallback((value: Corners) => {
     localStorage.setItem("tileCorners", value);
     bump();
@@ -95,6 +103,7 @@ export function useSettings() {
     setTheme,
     setSize,
     setAdminUnlocked,
+    setTripleTUnlocked,
     setCorners,
     setPattern,
     setReduceMotion,

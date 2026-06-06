@@ -9,6 +9,8 @@ export type Theme = {
   accent: string; // tailwind bg class for active states / focus rings
   ring: string; // tailwind ring class for focus
   palette: string[]; // 8 button colours
+  /** Hidden from the Settings picker unless the user has unlocked it. */
+  secret?: boolean;
 };
 
 export const THEMES: Theme[] = [
@@ -826,6 +828,28 @@ export const THEMES: Theme[] = [
       "bg-rose-800 hover:bg-rose-900",
       "bg-red-600 hover:bg-red-700",
       "bg-rose-500 hover:bg-rose-600",
+    ],
+  },
+  // 🪵 Secret theme — unlocked by typing "tung" anywhere on the site. Inspired
+  // by the brainrot character Tung Tung Sahur (a wooden log). Hidden from the
+  // theme picker until the user has it; when active, the brand swaps to
+  // "TUNGBURGER" and the burger emoji becomes a wooden log.
+  {
+    value: "triple-t",
+    name: "Triple T",
+    secret: true,
+    gradient: "from-amber-900 via-stone-800 to-amber-950",
+    accent: "bg-amber-500",
+    ring: "ring-amber-500",
+    palette: [
+      "bg-amber-700 hover:bg-amber-800",
+      "bg-stone-700 hover:bg-stone-800",
+      "bg-yellow-700 hover:bg-yellow-800",
+      "bg-amber-600 hover:bg-amber-700",
+      "bg-orange-800 hover:bg-orange-900",
+      "bg-stone-600 hover:bg-stone-700",
+      "bg-amber-800 hover:bg-amber-900",
+      "bg-yellow-800 hover:bg-yellow-900",
     ],
   },
 ];

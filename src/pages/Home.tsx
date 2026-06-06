@@ -12,6 +12,7 @@ export default function Home() {
   const t = getTheme(theme);
   const sz = getButtonSize(size);
   const tileCorner = cornerClass(corners);
+  const isTriplet = theme === "triple-t";
 
   const [query, setQuery] = useState("");
   const [customGames, setCustomGames] = useState<CustomGame[]>([]);
@@ -69,7 +70,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="font-display text-5xl sm:text-6xl md:text-7xl leading-[0.95] tracking-tight"
           >
-            Welcome to <span className="block">Chezburgar.</span>
+            Welcome to <span className="block">{isTriplet ? "Tungburger." : "Chezburgar."}</span>
           </motion.h1>
           <motion.p
             {...motionProps}
@@ -114,7 +115,17 @@ export default function Home() {
           >
             <div className="absolute inset-8 rounded-full bg-white/10 blur-3xl pointer-events-none" />
             <div className={reduceMotion ? "" : "animate-float"}>
-              <Burger className="w-full max-w-[340px]" />
+              {isTriplet ? (
+                <div
+                  className="text-[18rem] leading-none select-none drop-shadow-2xl"
+                  role="img"
+                  aria-label="Tung Tung Sahur"
+                >
+                  🪵
+                </div>
+              ) : (
+                <Burger className="w-full max-w-[340px]" />
+              )}
             </div>
           </motion.div>
         )}

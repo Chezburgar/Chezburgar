@@ -17,10 +17,12 @@ const PATTERN_OPTIONS: { value: Pattern; name: string; icon: typeof Minus }[] = 
 
 export default function Settings() {
   const {
-    theme, size, corners, pattern, reduceMotion, showMascot,
+    theme, size, corners, pattern, reduceMotion, showMascot, tripleTUnlocked,
     setTheme, setSize, setCorners, setPattern, setReduceMotion, setShowMascot,
   } = useSettings();
   const tileCorner = cornerClass(corners);
+  // Secret themes only appear in the picker once the user has unlocked them.
+  const visibleThemes = THEMES.filter((th) => !th.secret || tripleTUnlocked);
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-14">
@@ -33,10 +35,10 @@ export default function Settings() {
       <section className="mb-12">
         <div className="flex items-baseline justify-between mb-4">
           <h2 className="text-lg font-semibold">Theme</h2>
-          <span className="text-xs text-white/50">{THEMES.length} options</span>
+          <span className="text-xs text-white/50">{visibleThemes.length} options</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {THEMES.map((t) => {
+          {visibleThemes.map((t) => {
             const selected = t.value === theme;
             return (
               <motion.button

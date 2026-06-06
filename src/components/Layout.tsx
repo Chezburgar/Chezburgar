@@ -1,36 +1,73 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { getTheme } from "../lib/themes";
 import { patternBgStyle, useSettings } from "../lib/useSettings";
 
 const ADMIN_CODE = "081711";
+const TRIPLE_T_CODE = "tung";
+const TRIPLE_T_THEME = "triple-t";
 
 export default function Layout() {
-  const { theme, pattern, adminUnlocked, setAdminUnlocked } = useSettings();
+  const {
+    theme, pattern, adminUnlocked, tripleTUnlocked,
+    setAdminUnlocked, setTripleTUnlocked, setTheme,
+  } = useSettings();
   const t = getTheme(theme);
   const location = useLocation();
-  const buffer = useRef("");
+  const numericBuffer = useRef("");
+  const letterBuffer = useRef("");
+  const [toast, setToast] = useState<string | null>(null);
 
-  // Keypress sniffer for the hidden admin unlock — quiet on purpose.
+  const isTriplet = theme === TRIPLE_T_THEME;
+  const brandText = isTriplet ? "TUNGBURGER" : "CHEZBURGAR";
+  const brandEmoji = isTriplet ? "🪵" : "🍔";
+
+  // Update the browser tab title whenever the theme changes — Tungburger mode
+  // gets its own title so it's obvious the easter egg is active.
+  useEffect(() => {
+    document.title = isTriplet
+      ? "TUNGBURGER — Brainrot edition"
+      : "CHEZBURGAR — Play Everything.";
+  }, [isTriplet]);
+
+  // Keypress sniffer for both unlock codes. Numeric digits feed the admin
+  // unlock; lowercase letters feed the Triple T unlock. Typing in form fields
+  // is ignored so users filling out Suggest/Admin inputs don't trigger it.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      // Ignore typing in form fields so the unlock isn't triggered by users
-      // filling out the Suggest form or admin inputs.
       const tag = (e.target as HTMLElement | null)?.tagName?.toLowerCase();
       if (tag === "input" || tag === "textarea") return;
-      if (!/^[0-9]$/.test(e.key)) {
-        buffer.current = "";
-        return;
+
+      // Admin: digit sequence
+      if (/^[0-9]$/.test(e.key)) {
+        numericBuffer.current = (numericBuffer.current + e.key).slice(-ADMIN_CODE.length);
+        if (numericBuffer.current === ADMIN_CODE) {
+          setAdminUnlocked(true);
+          numericBuffer.current = "";
+          setToast("🔐 Admin unlocked");
+          setTimeout(() => setToast(null), 2400);
+        }
+      } else {
+        numericBuffer.current = "";
       }
-      buffer.current = (buffer.current + e.key).slice(-ADMIN_CODE.length);
-      if (buffer.current === ADMIN_CODE) {
-        setAdminUnlocked(true);
-        buffer.current = "";
+
+      // Triple T: letter sequence (case-insensitive)
+      if (/^[a-zA-Z]$/.test(e.key)) {
+        letterBuffer.current = (letterBuffer.current + e.key.toLowerCase()).slice(-TRIPLE_T_CODE.length);
+        if (letterBuffer.current === TRIPLE_T_CODE && !tripleTUnlocked) {
+          setTripleTUnlocked(true);
+          setTheme(TRIPLE_T_THEME);
+          letterBuffer.current = "";
+          setToast("🪵 Triple T unlocked");
+          setTimeout(() => setToast(null), 2400);
+        }
+      } else {
+        letterBuffer.current = "";
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [setAdminUnlocked]);
+  }, [setAdminUnlocked, setTripleTUnlocked, setTheme, tripleTUnlocked]);
 
   const baseLink = "px-3 sm:px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase transition-colors";
   const activeLink = `${t.accent} text-white shadow-lg`;
@@ -62,14 +99,15 @@ export default function Layout() {
         <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/30 border-b border-white/5">
           <nav className="mx-auto max-w-6xl px-5 h-16 flex items-center justify-between gap-4">
             <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
-              <span className="text-2xl group-hover:rotate-12 transition-transform">🍔</span>
+              <span className="text-2xl group-hover:rotate-12 transition-transform">{brandEmoji}</span>
               <span className="font-display tracking-widest text-lg sm:text-xl">
-                CHEZBURGAR
+                {brandText}
               </span>
             </Link>
             <ul className="flex items-center gap-1 overflow-x-auto">
               <li>{navLink("/", "Games")}</li>
               <li>{navLink("/grades", "Grades")}</li>
+              <li>{navLink("/messages", "Messages")}</li>
               <li>{navLink("/suggest", "Suggest")}</li>
               <li>{navLink("/settings", "Settings")}</li>
               {adminUnlocked && <li>{navLink("/admin", "Admin", "🔐")}</li>}
@@ -83,11 +121,18 @@ export default function Layout() {
 
         <footer className="border-t border-white/5 mt-16 py-8">
           <div className="mx-auto max-w-6xl px-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-white/40">
-            <span>© {new Date().getFullYear()} Chezburgar · a games hub with a burger mascot</span>
-            <span className="font-mono tracking-widest">v3.2</span>
+            <span>© {new Date().getFullYear()} {brandText.charAt(0) + brandText.slice(1).toLowerCase()} · a games hub with a {isTriplet ? "wooden mascot" : "burger mascot"}</span>
+            <span className="font-mono tracking-widest">v3.3</span>
           </div>
         </footer>
       </div>
+
+      {/* Floating unlock toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-5 py-3 rounded-full bg-black/85 backdrop-blur-md text-white font-semibold text-sm shadow-2xl border border-white/10 animate-[fadeIn_0.2s_ease-out]">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
