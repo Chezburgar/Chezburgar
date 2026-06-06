@@ -6,6 +6,7 @@ import { getButtonSize, getTheme } from "../lib/themes";
 import { cornerClass, useSettings } from "../lib/useSettings";
 import { listCustomGames, type CustomGame } from "../lib/supabase";
 import Burger from "../components/Burger";
+import SchoolCountdown from "../components/SchoolCountdown";
 
 export default function Home() {
   const { theme, size, corners, reduceMotion, showMascot } = useSettings();
@@ -62,8 +63,13 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl px-5">
+      {/* Live countdown to the last day of school */}
+      <div className="pt-5 max-w-md">
+        <SchoolCountdown />
+      </div>
+
       {/* Hero */}
-      <section className={`pt-14 pb-12 grid gap-10 items-center ${showMascot ? "lg:grid-cols-[1.4fr_1fr]" : ""}`}>
+      <section className={`pt-8 pb-12 grid gap-10 items-center ${showMascot ? "lg:grid-cols-[1.4fr_1fr]" : ""}`}>
         <div>
           <motion.h1
             {...motionProps}
