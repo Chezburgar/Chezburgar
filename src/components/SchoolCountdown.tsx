@@ -3,8 +3,8 @@ import { GraduationCap, PartyPopper } from "lucide-react";
 import { getTheme } from "../lib/themes";
 import { cornerClass, useSettings } from "../lib/useSettings";
 
-// Last day of school — Friday, June 19, 2026 at 2:30 PM (user's local time).
-const TARGET = new Date(2026, 5, 19, 14, 30, 0);
+// Last day of school — Thursday, June 18, 2026 at 11:15 AM (user's local time).
+const TARGET = new Date(2026, 5, 18, 11, 15, 0);
 
 type Diff = { days: number; hours: number; minutes: number; seconds: number; done: boolean };
 
