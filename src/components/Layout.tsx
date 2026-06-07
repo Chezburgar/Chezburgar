@@ -4,7 +4,7 @@ import { getTheme } from "../lib/themes";
 import { patternBgStyle, useSettings } from "../lib/useSettings";
 import Trailer from "./Trailer";
 import {
-  getSeenVersion, loadPublishedTrailer, markTrailerSeen, type TrailerConfig,
+  TRAILER_ENABLED, TRAILER_VERSION, getSeenVersion, markTrailerSeen,
 } from "../lib/trailer";
 
 const ADMIN_CODE = "081711";
@@ -25,35 +25,26 @@ export default function Layout() {
   const letterBuffer = useRef("");
   const [toast, setToast] = useState<string | null>(null);
 
-  // --- Intro trailer ---------------------------------------------------
-  const [trailer, setTrailer] = useState<TrailerConfig | null>(null);
+  // --- Intro slideshow -------------------------------------------------
   const [showTrailer, setShowTrailer] = useState(false);
 
-  // Load the published trailer; auto-show it to first-time visitors (or to
-  // anyone who hasn't seen the current version yet).
+  // Auto-show the intro to first-time visitors (or anyone who hasn't seen the
+  // current version yet).
   useEffect(() => {
-    let cancelled = false;
-    loadPublishedTrailer().then((cfg) => {
-      if (cancelled) return;
-      setTrailer(cfg);
-      if (cfg.enabled && cfg.videoUrl && getSeenVersion() !== cfg.version) {
-        setShowTrailer(true);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
+    if (TRAILER_ENABLED && getSeenVersion() !== TRAILER_VERSION) {
+      setShowTrailer(true);
+    }
   }, []);
 
-  // Footer "Watch intro again" → replay without changing the seen flag.
+  // Footer "Watch intro" → replay without changing the seen flag.
   useEffect(() => {
-    const replay = () => trailer && trailer.videoUrl && setShowTrailer(true);
+    const replay = () => setShowTrailer(true);
     window.addEventListener(PLAY_TRAILER_EVENT, replay);
     return () => window.removeEventListener(PLAY_TRAILER_EVENT, replay);
-  }, [trailer]);
+  }, []);
 
   const closeTrailer = () => {
-    if (trailer) markTrailerSeen(trailer.version);
+    markTrailerSeen();
     setShowTrailer(false);
   };
 
@@ -174,8 +165,8 @@ export default function Layout() {
         </footer>
       </div>
 
-      {/* First-visit intro trailer */}
-      {showTrailer && trailer && <Trailer config={trailer} onClose={closeTrailer} />}
+      {/* First-visit intro slideshow */}
+      {showTrailer && <Trailer onClose={closeTrailer} />}
 
       {/* Floating unlock toast */}
       {toast && (

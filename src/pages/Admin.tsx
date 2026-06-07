@@ -9,7 +9,6 @@ import {
 import { ICON_OPTIONS, type IconName } from "../lib/games";
 import { THEMES, getTheme } from "../lib/themes";
 import { useSettings } from "../lib/useSettings";
-import TrailerStudio from "../components/TrailerStudio";
 
 const ICON_NAMES = Object.keys(ICON_OPTIONS) as IconName[];
 
@@ -299,9 +298,6 @@ export default function Admin() {
           </div>
         )}
       </section>
-
-      {/* Intro trailer builder */}
-      <TrailerStudio />
     </div>
   );
 }
