@@ -159,7 +159,7 @@ export default function Layout() {
               >
                 ▶ Watch intro
               </button>
-              <span className="font-mono tracking-widest">v3.4</span>
+              <span className="font-mono tracking-widest">v4.0</span>
             </div>
           </div>
         </footer>
