@@ -2,10 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { getTheme } from "../lib/themes";
 import { patternBgStyle, useSettings } from "../lib/useSettings";
+import Trailer from "./Trailer";
+import {
+  getSeenVersion, loadPublishedTrailer, markTrailerSeen, type TrailerConfig,
+} from "../lib/trailer";
 
 const ADMIN_CODE = "081711";
 const TRIPLE_T_CODE = "tung";
 const TRIPLE_T_THEME = "triple-t";
+
+// Footer "Watch intro again" dispatches this so the published trailer replays.
+export const PLAY_TRAILER_EVENT = "chez:play-trailer";
 
 export default function Layout() {
   const {
@@ -17,6 +24,38 @@ export default function Layout() {
   const numericBuffer = useRef("");
   const letterBuffer = useRef("");
   const [toast, setToast] = useState<string | null>(null);
+
+  // --- Intro trailer ---------------------------------------------------
+  const [trailer, setTrailer] = useState<TrailerConfig | null>(null);
+  const [showTrailer, setShowTrailer] = useState(false);
+
+  // Load the published trailer; auto-show it to first-time visitors (or to
+  // anyone who hasn't seen the current version yet).
+  useEffect(() => {
+    let cancelled = false;
+    loadPublishedTrailer().then((cfg) => {
+      if (cancelled) return;
+      setTrailer(cfg);
+      if (cfg.enabled && cfg.slides.length > 0 && getSeenVersion() !== cfg.version) {
+        setShowTrailer(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Footer "Watch intro again" → replay without changing the seen flag.
+  useEffect(() => {
+    const replay = () => trailer && trailer.slides.length > 0 && setShowTrailer(true);
+    window.addEventListener(PLAY_TRAILER_EVENT, replay);
+    return () => window.removeEventListener(PLAY_TRAILER_EVENT, replay);
+  }, [trailer]);
+
+  const closeTrailer = () => {
+    if (trailer) markTrailerSeen(trailer.version);
+    setShowTrailer(false);
+  };
 
   const isTriplet = theme === TRIPLE_T_THEME;
   const brandText = isTriplet ? "TUNGBURGER" : "CHEZBURGAR";
@@ -122,10 +161,21 @@ export default function Layout() {
         <footer className="border-t border-white/5 mt-16 py-8">
           <div className="mx-auto max-w-6xl px-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-white/40">
             <span>© {new Date().getFullYear()} {brandText.charAt(0) + brandText.slice(1).toLowerCase()} · a games hub with a {isTriplet ? "wooden mascot" : "burger mascot"}</span>
-            <span className="font-mono tracking-widest">v3.3</span>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => window.dispatchEvent(new Event(PLAY_TRAILER_EVENT))}
+                className="hover:text-white transition-colors uppercase tracking-wider"
+              >
+                ▶ Watch intro
+              </button>
+              <span className="font-mono tracking-widest">v3.4</span>
+            </div>
           </div>
         </footer>
       </div>
+
+      {/* First-visit intro trailer */}
+      {showTrailer && trailer && <Trailer config={trailer} onClose={closeTrailer} />}
 
       {/* Floating unlock toast */}
       {toast && (
