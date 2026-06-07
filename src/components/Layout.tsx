@@ -36,7 +36,7 @@ export default function Layout() {
     loadPublishedTrailer().then((cfg) => {
       if (cancelled) return;
       setTrailer(cfg);
-      if (cfg.enabled && cfg.slides.length > 0 && getSeenVersion() !== cfg.version) {
+      if (cfg.enabled && cfg.videoUrl && getSeenVersion() !== cfg.version) {
         setShowTrailer(true);
       }
     });
@@ -47,7 +47,7 @@ export default function Layout() {
 
   // Footer "Watch intro again" → replay without changing the seen flag.
   useEffect(() => {
-    const replay = () => trailer && trailer.slides.length > 0 && setShowTrailer(true);
+    const replay = () => trailer && trailer.videoUrl && setShowTrailer(true);
     window.addEventListener(PLAY_TRAILER_EVENT, replay);
     return () => window.removeEventListener(PLAY_TRAILER_EVENT, replay);
   }, [trailer]);
