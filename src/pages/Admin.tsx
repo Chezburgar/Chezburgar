@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Trash2, Pencil, Plus, X, LogOut, Save } from "lucide-react";
+import { Trash2, Pencil, Plus, X, LogOut, Save, PartyPopper } from "lucide-react";
+import { FIREWORKS_EVENT } from "../components/Fireworks";
 import {
   listCustomGames, listSuggestions, deleteSuggestion,
   saveCustomGame, deleteCustomGame,
@@ -97,14 +98,22 @@ export default function Admin() {
             Active theme: <span className="text-white">{THEMES.find((th) => th.value === theme)?.name}</span>
           </p>
         </div>
-        <button
-          onClick={() => {
-            setAdminUnlocked(false);
-          }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/10 hover:bg-white/20 transition-colors"
-        >
-          <LogOut size={14} /> Lock
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => window.dispatchEvent(new Event(FIREWORKS_EVENT))}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider ${t.accent} hover:brightness-110 text-white transition-all`}
+          >
+            <PartyPopper size={14} /> Preview fireworks
+          </button>
+          <button
+            onClick={() => {
+              setAdminUnlocked(false);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <LogOut size={14} /> Lock
+          </button>
+        </div>
       </header>
 
       <div className="grid lg:grid-cols-2 gap-6">

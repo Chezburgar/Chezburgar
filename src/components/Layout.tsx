@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { getTheme } from "../lib/themes";
 import { patternBgStyle, useSettings } from "../lib/useSettings";
 import Trailer from "./Trailer";
+import Fireworks, { FIREWORKS_EVENT } from "./Fireworks";
 import {
   TRAILER_ENABLED, TRAILER_VERSION, getSeenVersion, markTrailerSeen,
 } from "../lib/trailer";
@@ -47,6 +48,14 @@ export default function Layout() {
     markTrailerSeen();
     setShowTrailer(false);
   };
+
+  // --- Fireworks celebration -------------------------------------------
+  const [showFireworks, setShowFireworks] = useState(false);
+  useEffect(() => {
+    const fire = () => setShowFireworks(true);
+    window.addEventListener(FIREWORKS_EVENT, fire);
+    return () => window.removeEventListener(FIREWORKS_EVENT, fire);
+  }, []);
 
   const isTriplet = theme === TRIPLE_T_THEME;
   const brandText = isTriplet ? "TUNGBURGER" : "CHEZBURGAR";
@@ -167,6 +176,9 @@ export default function Layout() {
 
       {/* First-visit intro slideshow */}
       {showTrailer && <Trailer onClose={closeTrailer} />}
+
+      {/* End-of-countdown celebration */}
+      {showFireworks && <Fireworks onClose={() => setShowFireworks(false)} />}
 
       {/* Floating unlock toast */}
       {toast && (

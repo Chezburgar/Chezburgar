@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { GraduationCap, PartyPopper } from "lucide-react";
 import { getTheme } from "../lib/themes";
 import { cornerClass, useSettings } from "../lib/useSettings";
+import { FIREWORKS_EVENT } from "./Fireworks";
 
 // Last day of school — Thursday, June 18, 2026 at 11:15 AM (user's local time).
 const TARGET = new Date(2026, 5, 18, 11, 15, 0);
@@ -36,6 +37,16 @@ export default function SchoolCountdown() {
     const id = setInterval(() => setNow(diffTo(TARGET)), 1000);
     return () => clearInterval(id);
   }, []);
+
+  // The moment the countdown reaches zero, launch the fireworks once. Guarded
+  // by localStorage so it celebrates a single time, not on every page load
+  // after the date has passed. (Admin "Preview" can re-trigger it anytime.)
+  useEffect(() => {
+    if (now.done && localStorage.getItem("fireworksCelebrated") !== "true") {
+      localStorage.setItem("fireworksCelebrated", "true");
+      window.dispatchEvent(new Event(FIREWORKS_EVENT));
+    }
+  }, [now.done]);
 
   if (now.done) {
     return (
